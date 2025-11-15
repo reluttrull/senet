@@ -1,11 +1,11 @@
 import './App.css'
-import MiniSinglePlayer from './MiniSinglePlayer.tsx'
+import SinglePlayer from './SinglePlayer.tsx'
 
 function App() {
 
   return (
     <>
-      <MiniSinglePlayer />
+      <SinglePlayer />
     </>
   )
 }
