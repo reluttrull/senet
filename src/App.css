@@ -73,11 +73,27 @@
   user-select: none;
   width: 80%;
   height: 80%;
-  background-color: rgb(90, 49, 1);
+  background-color: white;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
+  color: red;
+  font-weight: bold;
+}
+
+.enemy-piece {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: 80%;
+  height: 80%;
+  background-color: black;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: blue;
   font-weight: bold;
 }
