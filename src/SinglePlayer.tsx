@@ -1,16 +1,22 @@
 import { useEffect, useState } from 'react'
+import Pawn from './Pawn'
 import './App.css'
 
 function SinglePlayer() {
   // for now, one pawn in the first spot
   const [sticks, setSticks] = useState([0,0,0,0,0]);
-  const [pawns, setPawns] = useState([0,2,4]); 
-  const [enemyPawns, setEnemyPawns] = useState([1,3,5]); 
+  const [pawns, setPawns] = useState([0,2,4,6,8]); 
+  const [enemyPawns, setEnemyPawns] = useState([1,3,5,7,9]); 
   const board = new Array(30).fill(null);
-  const movePiece = (index:number) => {
+  function movePiece(index:number) {
+    let toLocation:number = index + getSticksValue();
     setPawns(pawns.map(pawnLocation => {
-        if (pawnLocation == index) return pawnLocation + getSticksValue();
+        if (pawnLocation == index) return toLocation;
         else return pawnLocation;
+    }));
+    setEnemyPawns(enemyPawns.map(pawnLocation => {
+      if (pawnLocation == toLocation) return index;
+      else return pawnLocation;
     }));
     rollSticks();
   };
@@ -29,6 +35,23 @@ function SinglePlayer() {
         return 5;
     }
     return 0;
+  }
+
+  const isEnemyGuarded = (index:number) => {
+    if (!enemyPawns.includes(index)) return false;
+    if (enemyPawns.includes(index + 1) || enemyPawns.includes(index - 1)) return true;
+    return false;
+  }
+
+  const pawnCanMove = (index:number) => {
+    let toLocation:number = index + getSticksValue();
+    if (isEnemyGuarded(toLocation)) return false; // if guarded
+    if (pawns.includes(toLocation)) return false; // if same color
+    if (index == 25 || index == 29 && toLocation > 29) return true; // if home free
+    if (index != 25 && toLocation > 25 && toLocation < 29) return false; // if did not pass go
+    if (index == 27 && toLocation != 30) return false; // need exactly 3 here
+    if (index == 28 && toLocation != 30) return false; // need exactly 2 here
+    return true;
   }
 
   function rollSticks(){
@@ -52,7 +75,7 @@ function SinglePlayer() {
                 if (index < 10) return (
                   <div key={index} className="square">
                       {pawns.includes(index) && 
-                        <div className="piece" onClick={() => movePiece(index)}>P</div>}
+                        <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                       {enemyPawns.includes(index) && 
                         <div className="enemy-piece">P</div>}
                   </div>)
@@ -65,9 +88,8 @@ function SinglePlayer() {
                 .reverse()
                 .map((index) => (
                   <div key={index} className="square">
-                    {pawns.includes(index) && 
-                      <div className="piece" onClick={() => movePiece(index)}>P</div>
-                    }
+                      {pawns.includes(index) && 
+                        <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                     {enemyPawns.includes(index) && 
                       <div className="enemy-piece">P</div>}
                   </div>
@@ -78,7 +100,7 @@ function SinglePlayer() {
                 if (index >= 20) return (
                   <div key={index} className="square">
                       {pawns.includes(index) && 
-                        <div className="piece" onClick={() => movePiece(index)}>P</div>}
+                        <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                       {enemyPawns.includes(index) && 
                         <div className="enemy-piece">P</div>}
                   </div>)

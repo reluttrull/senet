@@ -80,6 +80,7 @@
   align-items: center;
   color: red;
   font-weight: bold;
+  z-index: 5;
 }
 
 .enemy-piece {
@@ -96,4 +97,10 @@
   align-items: center;
   color: blue;
   font-weight: bold;
+  z-index: 5;
+}
+
+.can-move {
+  box-shadow: 0 0 5px 5px rgba(88, 255, 22, 0.63);
+  z-index: 4;
 }
