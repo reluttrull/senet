@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { FaChessPawn } from 'react-icons/fa6'
 import Pawn from './Pawn'
 import './App.css'
 
@@ -39,7 +40,7 @@ function SinglePlayer() {
 
   const isEnemyGuarded = (index:number) => {
     if (!enemyPawns.includes(index)) return false;
-    if (enemyPawns.includes(index + 1) || enemyPawns.includes(index - 1)) return true;
+    if ((enemyPawns.includes(index + 1) && index < 29) || enemyPawns.includes(index - 1)) return true;
     return false;
   }
 
@@ -108,7 +109,8 @@ function SinglePlayer() {
             </div>
         </div>
         <div>move {getSticksValue()} spaces</div>
-        <div>{pawns.map(pawnLocation => {if (pawnLocation > 29) return (<span>x</span>)})}</div>
+        <div>{pawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'white'}} />)})}</div>
+        <div>{enemyPawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'black'}} />)})}</div>
     </>
   )
 }
