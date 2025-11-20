@@ -50,7 +50,6 @@ function SinglePlayer() {
     else {
       isPlayerTurnRef.current = true;
       console.log("no more rolls, now it's player's turn", isPlayerTurnRef.current);
-      if (!isPlayerTurnRef.current) enemyTurn();
     }
   };
 
@@ -129,6 +128,15 @@ function SinglePlayer() {
     rollSticks();
   }, [])
 
+  async function handleSkipTurn() {
+    let movablePawns = (isPlayerTurnRef.current ? pawnsRef.current : enemyPawnsRef.current)
+            .filter(pawn => pawnCanMove(pawn, isPlayerTurnRef.current) && pawn < 30);
+    console.log("skipping", isPlayerTurnRef.current, movablePawns);
+    if (movablePawns.length > 0) return;
+    isPlayerTurnRef.current = !isPlayerTurnRef.current;
+    enemyTurn();
+  }
+
   return (
     <>
         <div className="game-container">
@@ -182,6 +190,7 @@ function SinglePlayer() {
             </div>
         </div>
         <div>{isPlayerTurn ? <span>You can </span> : <span>Opponent can </span>}move {getSticksValue()} spaces</div>
+        <button onClick={handleSkipTurn}>Skip turn</button>
         <div>{pawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'white'}} />)})}</div>
         <div>{enemyPawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'black'}} />)})}</div>
     </>
