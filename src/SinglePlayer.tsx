@@ -5,7 +5,7 @@ import Pawn from './Pawn'
 import './App.css'
 
 function SinglePlayer() {
-  const [sticks, setSticks] = useState([0,0,0,0]);
+  const sticksRef = useRef([0,0,0,0]);
   const board = new Array(30).fill(null);
   const isPlayerTurnRef = useRef(true);
   const [isPlayerTurn, setIsPlayerTurn] = useState(isPlayerTurnRef.current);
@@ -26,7 +26,7 @@ function SinglePlayer() {
     let toLocation:number = index + sticksValue;
     if (!pawnCanMove(index, true)) return;
     pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == index ? toLocation : pawnLocation);
-    enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == toLocation ? index : pawnLocation);
+    if (toLocation < 30) enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == toLocation ? index : pawnLocation);
     setPawns(pawnsRef.current);
     setEnemyPawns(enemyPawnsRef.current);
     if ([1,4,5].includes(sticksValue)) rollSticks();
@@ -44,7 +44,7 @@ function SinglePlayer() {
     enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == index ? toLocation : pawnLocation);
     setEnemyPawns(enemyPawnsRef.current);
     if (pawnsRef.current.includes(toLocation)) console.log(`capturing pawn at ${toLocation}`);
-    pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == toLocation ? index : pawnLocation);
+    if (toLocation < 30) pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == toLocation ? index : pawnLocation);
     setPawns(pawnsRef.current);
     if ([1,4,5].includes(sticksValue)) rollSticks();
     else {
@@ -54,7 +54,7 @@ function SinglePlayer() {
   };
 
   const getSticksValue = () => {
-    switch (sticks.filter(s => s == 1).length) {
+    switch (sticksRef.current.filter(s => s == 1).length) {
       case 1: 
         return 1;
       case 2:
@@ -66,13 +66,11 @@ function SinglePlayer() {
       case 0:
         return 5;
     }
-    console.log(sticks);
     return 0;
   }
 
   const isEnemyGuarded = (index:number, isPlayer:boolean = true) => {
     let otherPieces = isPlayer ? enemyPawnsRef.current : pawnsRef.current;
-    console.log(`checking other player isn't guarded at ${index}`, otherPieces);
     if (!otherPieces.includes(index)) return false;
     if ((otherPieces.includes(index + 1) && index < 29) || otherPieces.includes(index - 1)) return true;
     return false;
@@ -99,7 +97,7 @@ function SinglePlayer() {
     {
       newSticks[i] = Math.floor(Math.random() * 2);
     }
-    setSticks(newSticks);
+    sticksRef.current = newSticks;
   }
 
   async function enemyTurn(){
@@ -109,7 +107,7 @@ function SinglePlayer() {
       rollSticks();
       console.log("sticks", getSticksValue());
       // get all possible moves
-      let movableEnemyPawns = enemyPawnsRef.current.filter(pawn => pawnCanMove(pawn, false));
+      let movableEnemyPawns = enemyPawnsRef.current.filter(pawn => pawnCanMove(pawn, false) && pawn < 30);
       console.log("movable pawns", movableEnemyPawns);
       await sleep(1000);
       if (movableEnemyPawns.length == 0) {
