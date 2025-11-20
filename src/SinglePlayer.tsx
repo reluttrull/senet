@@ -5,33 +5,35 @@ import Pawn from './Pawn'
 import './App.css'
 
 function SinglePlayer() {
-  // for now, one pawn in the first spot
   const [sticks, setSticks] = useState([0,0,0,0]);
   const board = new Array(30).fill(null);
-  const isPlayerTurn = useRef(true);
+  const isPlayerTurnRef = useRef(true);
+  const [isPlayerTurn, setIsPlayerTurn] = useState(isPlayerTurnRef.current);
   // keep refs so async enemyTurn sees latest arrays
   const pawnsRef = useRef([0,2,4,6,8]);
   const enemyPawnsRef = useRef([1,3,5,7,9]);
   const [pawns, setPawns] = useState(pawnsRef.current); 
   const [enemyPawns, setEnemyPawns] = useState(enemyPawnsRef.current); 
-  useEffect(() => { pawnsRef.current = pawns; enemyPawnsRef.current = enemyPawns; }, [pawns, enemyPawns]);
-  useEffect(() => { setPawns(pawnsRef.current); setEnemyPawns(enemyPawnsRef.current); }, [pawnsRef, enemyPawnsRef]);
+
+  useEffect(() => { setIsPlayerTurn(isPlayerTurnRef.current);}, [isPlayerTurnRef.current]);
+  //useEffect(() => { setPawns(pawnsRef.current); setEnemyPawns(enemyPawnsRef.current); }, [pawnsRef.current, enemyPawnsRef.current]);
 
   const sleep = (ms:number) => new Promise(resolve => setTimeout(resolve, ms));
 
   function movePiece(index:number) {
-    if (!isPlayerTurn) return;
+    if (!isPlayerTurnRef.current) return;
     let sticksValue:number = getSticksValue();
     let toLocation:number = index + sticksValue;
+    if (!pawnCanMove(index, true)) return;
     pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == index ? toLocation : pawnLocation);
     enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == toLocation ? index : pawnLocation);
     setPawns(pawnsRef.current);
     setEnemyPawns(enemyPawnsRef.current);
     if ([1,4,5].includes(sticksValue)) rollSticks();
     else {
-      isPlayerTurn.current = false;
-      console.log("no more rolls, now it's opponent's turn", isPlayerTurn.current);
-      if (!isPlayerTurn.current) enemyTurn();
+      isPlayerTurnRef.current = false;
+      console.log("no more rolls, now it's opponent's turn", isPlayerTurnRef.current);
+      if (!isPlayerTurnRef.current) enemyTurn();
     }
   };
   
@@ -46,9 +48,9 @@ function SinglePlayer() {
     setPawns(pawnsRef.current);
     if ([1,4,5].includes(sticksValue)) rollSticks();
     else {
-      isPlayerTurn.current = true;
-      console.log("no more rolls, now it's player's turn", isPlayerTurn.current);
-      if (!isPlayerTurn.current) enemyTurn();
+      isPlayerTurnRef.current = true;
+      console.log("no more rolls, now it's player's turn", isPlayerTurnRef.current);
+      if (!isPlayerTurnRef.current) enemyTurn();
     }
   };
 
@@ -81,10 +83,10 @@ function SinglePlayer() {
     let myPieces = isPlayer ? pawnsRef.current : enemyPawnsRef.current;
     if (!isPlayer) console.log("index at canmove", index);
     if (!isPlayer) console.log("mypieces at canmove", myPieces);
-    if (isPlayer && !isPlayerTurn.current) return false;
+    if (isPlayer && !isPlayerTurnRef.current) return false;
     let toLocation:number = index + getSticksValue();
     if (isEnemyGuarded(toLocation, isPlayer)) return false; // if guarded
-    if (myPieces.includes(toLocation)) return false; // if same color
+    if (toLocation < 30 && myPieces.includes(toLocation)) return false; // if same color
     if (index == 25 || index == 29 && toLocation > 29) return true; // if home free
     if (index != 25 && toLocation > 25 && toLocation < 29) return false; // if did not pass go
     if (index == 27 && toLocation != 30) return false; // need exactly 3 here
@@ -103,7 +105,7 @@ function SinglePlayer() {
 
   async function enemyTurn(){
     console.log("got here");
-    while (!isPlayerTurn.current)
+    while (!isPlayerTurnRef.current)
     {
       rollSticks();
       console.log("sticks", getSticksValue());
@@ -112,7 +114,7 @@ function SinglePlayer() {
       console.log("movable pawns", movableEnemyPawns);
       await sleep(1000);
       if (movableEnemyPawns.length == 0) {
-        isPlayerTurn.current = true;
+        isPlayerTurnRef.current = true;
         break;
       }
       // if any, pick random
@@ -179,7 +181,7 @@ function SinglePlayer() {
                 })}
             </div>
         </div>
-        <div>{isPlayerTurn.current ? <span>You can </span> : <span>Opponent can </span>}move {getSticksValue()} spaces</div>
+        <div>{isPlayerTurn ? <span>You can </span> : <span>Opponent can </span>}move {getSticksValue()} spaces</div>
         <div>{pawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'white'}} />)})}</div>
         <div>{enemyPawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'black'}} />)})}</div>
     </>
