@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { FaChessPawn } from 'react-icons/fa6'
+import { FaChessPawn, FaAnkh, FaGuitar, FaWater, FaDiceThree, FaDiceTwo } from 'react-icons/fa6'
+import { GiEyeOfHorus } from 'react-icons/gi';
 import Pawn from './Pawn'
 import './App.css'
 
@@ -133,10 +134,10 @@ function SinglePlayer() {
                 {board.map((_, index) => { 
                 if (index < 10) return (
                   <div key={index} className="square">
-                      {pawns.includes(index) && 
-                        <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
-                      {enemyPawns.includes(index) && 
-                        <div className="enemy-piece">P</div>}
+                    {pawns.includes(index) && 
+                      <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
+                    {enemyPawns.includes(index) && 
+                      <div className="enemy-piece">P</div>}
                   </div>)
                 })}
             </div>
@@ -147,8 +148,10 @@ function SinglePlayer() {
                 .reverse()
                 .map((index) => (
                   <div key={index} className="square">
-                      {pawns.includes(index) && 
-                        <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
+                    {!pawns.includes(index) && !enemyPawns.includes(index) && index == 14 
+                      && <FaAnkh className="house" />}
+                    {pawns.includes(index) && 
+                      <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                     {enemyPawns.includes(index) && 
                       <div className="enemy-piece">P</div>}
                   </div>
@@ -158,15 +161,25 @@ function SinglePlayer() {
                 {board.map((_, index) => { 
                 if (index >= 20) return (
                   <div key={index} className="square">
-                      {pawns.includes(index) && 
-                        <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
-                      {enemyPawns.includes(index) && 
-                        <div className="enemy-piece">P</div>}
+                    {!pawns.includes(index) && !enemyPawns.includes(index) && index == 25 
+                      && <FaGuitar className="house" />}
+                    {!pawns.includes(index) && !enemyPawns.includes(index) && index == 26 
+                      && <FaWater className="house" />}
+                    {!pawns.includes(index) && !enemyPawns.includes(index) && index == 27 
+                      && <FaDiceThree className="house" />}
+                    {!pawns.includes(index) && !enemyPawns.includes(index) && index == 28 
+                      && <FaDiceTwo className="house" />}
+                    {!pawns.includes(index) && !enemyPawns.includes(index) && index == 29 
+                      && <GiEyeOfHorus className="house" />}
+                    {pawns.includes(index) && 
+                      <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
+                    {enemyPawns.includes(index) && 
+                      <div className="enemy-piece">P</div>}
                   </div>)
                 })}
             </div>
         </div>
-        {isPlayerTurn.current && <div>move {getSticksValue()} spaces</div>}
+        <div>{isPlayerTurn.current ? <span>You can </span> : <span>Opponent can </span>}move {getSticksValue()} spaces</div>
         <div>{pawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'white'}} />)})}</div>
         <div>{enemyPawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'black'}} />)})}</div>
     </>

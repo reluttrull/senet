@@ -53,7 +53,7 @@
   justify-content: center;
   width: 100%;
   max-width: 800px; 
-  border: 3px solid rgb(142, 77, 3);
+  border: 3px solid rgb(88, 60, 28);
 }
 
 .square {
@@ -64,6 +64,12 @@
   justify-content: center;
   align-items: center;
   background-color: rgb(181, 137, 87);
+}
+
+.house {
+  font-size: xx-large;
+  color: rgb(56, 37, 16);
+  filter: drop-shadow(1px 1px 1px rgba(46, 32, 13, 0.596));
 }
 
 .piece {
