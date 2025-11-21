@@ -6,6 +6,7 @@ import './App.css'
 
 function SinglePlayer() {
   const sticksRef = useRef([0,0,0,0]);
+  const [sticksValue, setSticksValue] = useState(-1);
   const board = new Array(30).fill(null);
   const isPlayerTurnRef = useRef(true);
   const [isPlayerTurn, setIsPlayerTurn] = useState(isPlayerTurnRef.current);
@@ -27,6 +28,7 @@ function SinglePlayer() {
     if (!pawnCanMove(index, true)) return;
     pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == index ? toLocation : pawnLocation);
     if (toLocation < 30) enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == toLocation ? index : pawnLocation);
+    if (toLocation == 26) warpPieceBackFrom26(true);
     setPawns(pawnsRef.current);
     setEnemyPawns(enemyPawnsRef.current);
     if ([1,4,5].includes(sticksValue)) rollSticks();
@@ -42,15 +44,28 @@ function SinglePlayer() {
     let toLocation:number = index + sticksValue;
     console.log(`moving from ${index}: ${sticksValue} squares to ${toLocation}`);
     enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == index ? toLocation : pawnLocation);
-    setEnemyPawns(enemyPawnsRef.current);
     if (pawnsRef.current.includes(toLocation)) console.log(`capturing pawn at ${toLocation}`);
     if (toLocation < 30) pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == toLocation ? index : pawnLocation);
+    if (toLocation == 26) warpPieceBackFrom26(false);
+    setEnemyPawns(enemyPawnsRef.current);
     setPawns(pawnsRef.current);
     if ([1,4,5].includes(sticksValue)) rollSticks();
     else {
       isPlayerTurnRef.current = true;
       console.log("no more rolls, now it's player's turn", isPlayerTurnRef.current);
     }
+  };
+
+  function warpPieceBackFrom26(isPlayer:boolean)
+  {
+    // send piece back to 14 (House #15) or closest open spot before it
+    let allPawns:number[] = pawnsRef.current.concat(enemyPawnsRef.current);
+    let toIndex:number = 14;
+    for (let toIndex = 14; toIndex >= 0; toIndex--) {
+      if (!allPawns.includes(toIndex)) break;
+    }
+    if (isPlayer) pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == 26 ? toIndex : pawnLocation);
+    else enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == 26 ? toIndex : pawnLocation);
   };
 
   const getSticksValue = () => {
@@ -85,19 +100,24 @@ function SinglePlayer() {
     if (isEnemyGuarded(toLocation, isPlayer)) return false; // if guarded
     if (toLocation < 30 && myPieces.includes(toLocation)) return false; // if same color
     if (index == 25 || index == 29 && toLocation > 29) return true; // if home free
-    if (index != 25 && toLocation > 25 && toLocation < 29) return false; // if did not pass go
+    if (index != 25 && toLocation > 25 && toLocation < 30) return false; // if did not pass go
     if (index == 27 && toLocation != 30) return false; // need exactly 3 here
     if (index == 28 && toLocation != 30) return false; // need exactly 2 here
     return true;
   }
 
   function rollSticks(){
+    sticksRef.current = getSticksRoll();
+    setSticksValue(getSticksValue());
+  }
+
+  function getSticksRoll() {
     let newSticks:number[] = [];
     for (let i: number = 0; i < 4; i++)
     {
       newSticks[i] = Math.floor(Math.random() * 2);
     }
-    sticksRef.current = newSticks;
+    return newSticks;
   }
 
   async function enemyTurn(){
@@ -187,7 +207,7 @@ function SinglePlayer() {
                 })}
             </div>
         </div>
-        <div>{isPlayerTurn ? <span>You can </span> : <span>Opponent can </span>}move {getSticksValue()} spaces</div>
+        <div>{isPlayerTurn ? <span>You can </span> : <span>Opponent can </span>}move {sticksValue} spaces</div>
         <button onClick={handleSkipTurn}>Skip turn</button>
         <div>{pawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'white'}} />)})}</div>
         <div>{enemyPawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'black'}} />)})}</div>
