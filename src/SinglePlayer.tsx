@@ -105,11 +105,13 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
 
   const pawnCanMove = (index:number, isPlayer:boolean = true) => {
     let myPieces = isPlayer ? pawnsRef.current : enemyPawnsRef.current;
+    let opponentPieces = isPlayer ? enemyPawnsRef.current : pawnsRef.current;
     if (!isPlayer) console.log("index at canmove", index);
     if (!isPlayer) console.log("mypieces at canmove", myPieces);
     if (isPlayer && !isPlayerTurnRef.current) return false;
     let toLocation:number = index + getSticksValue();
     if (isEnemyGuarded(toLocation, isPlayer)) return false; // if guarded
+    if ([14,25,27,28].includes(toLocation) && opponentPieces.includes(toLocation)) return false; // can't capture safe squares
     if (toLocation < 30 && myPieces.includes(toLocation)) return false; // if same color
     if (index == 25 || index == 29 && toLocation > 29) return true; // if home free
     if (index != 25 && toLocation > 25 && toLocation < 30) return false; // if did not pass go
