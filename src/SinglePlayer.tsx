@@ -60,9 +60,11 @@ function SinglePlayer() {
   {
     // send piece back to 14 (House #15) or closest open spot before it
     let allPawns:number[] = pawnsRef.current.concat(enemyPawnsRef.current);
+    console.log("all pawn locations by ref", allPawns);
     let toIndex:number = 14;
-    for (let toIndex = 14; toIndex >= 0; toIndex--) {
+    while (toIndex >= 0) {
       if (!allPawns.includes(toIndex)) break;
+      toIndex--;
     }
     if (isPlayer) pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == 26 ? toIndex : pawnLocation);
     else enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == 26 ? toIndex : pawnLocation);
