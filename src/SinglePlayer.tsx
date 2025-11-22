@@ -35,7 +35,10 @@ function SinglePlayer() {
     else {
       isPlayerTurnRef.current = false;
       console.log("no more rolls, now it's opponent's turn", isPlayerTurnRef.current);
-      if (!isPlayerTurnRef.current) enemyTurn();
+      if (!isPlayerTurnRef.current) {
+        rollSticks();
+        enemyTurn();
+      }
     }
   };
   
@@ -126,7 +129,6 @@ function SinglePlayer() {
     console.log("got here");
     while (!isPlayerTurnRef.current)
     {
-      rollSticks();
       console.log("sticks", getSticksValue());
       // get all possible moves
       let movableEnemyPawns = enemyPawnsRef.current.filter(pawn => pawnCanMove(pawn, false) && pawn < 30);
@@ -134,7 +136,8 @@ function SinglePlayer() {
       await sleep(1000);
       if (movableEnemyPawns.length == 0) {
         isPlayerTurnRef.current = true;
-        break;
+        setIsPlayerTurn(isPlayerTurnRef.current);
+        return;
       }
       // if any, pick random
       let pickIndex = Math.floor(Math.random() * movableEnemyPawns.length);
@@ -154,6 +157,7 @@ function SinglePlayer() {
     console.log("skipping", isPlayerTurnRef.current, movablePawns);
     if (movablePawns.length > 0) return;
     isPlayerTurnRef.current = !isPlayerTurnRef.current;
+    rollSticks();
     enemyTurn();
   }
 
