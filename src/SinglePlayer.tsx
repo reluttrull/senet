@@ -112,6 +112,10 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
     let toLocation:number = index + getSticksValue();
     if (isEnemyGuarded(toLocation, isPlayer)) return false; // if guarded
     if ([14,25,27,28].includes(toLocation) && opponentPieces.includes(toLocation)) return false; // can't capture safe squares
+    if (toLocation - index > 3
+      && opponentPieces.includes(index+2) 
+      && opponentPieces.includes(index+3) 
+      && (opponentPieces.includes(index+1) || opponentPieces.includes(index+4))) return false; // can't jump blockade
     if (toLocation < 30 && myPieces.includes(toLocation)) return false; // if same color
     if (index == 25 || index == 29 && toLocation > 29) return true; // if home free
     if (index != 25 && toLocation > 25 && toLocation < 30) return false; // if did not pass go
