@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { FaChessPawn, FaAnkh, FaGuitar, FaWater, FaDiceThree, FaDiceTwo } from 'react-icons/fa6'
-import { GiEyeOfHorus } from 'react-icons/gi';
+import { GiEyeOfHorus } from 'react-icons/gi'
 import Pawn from './Pawn'
 import './App.css'
 
@@ -41,7 +41,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
     if ([1,4,5].includes(sticksValue)) rollSticks();
     else {
       isPlayerTurnRef.current = false;
-      console.log("no more rolls, now it's opponent's turn", isPlayerTurnRef.current);
+      console.log("no more rolls, now it's opponent's turn");
       if (!isPlayerTurnRef.current) {
         rollSticks();
         enemyTurn();
@@ -52,9 +52,9 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
   function moveEnemyPiece(index:number) {
     let sticksValue:number = getSticksValue();
     let toLocation:number = index + sticksValue;
-    console.log(`moving from ${index}: ${sticksValue} squares to ${toLocation}`);
+    console.log(`opponent moving from ${index}: ${sticksValue} squares to ${toLocation}`);
     enemyPawnsRef.current = enemyPawnsRef.current.map(pawnLocation => pawnLocation == index ? toLocation : pawnLocation);
-    if (pawnsRef.current.includes(toLocation)) console.log(`capturing pawn at ${toLocation}`);
+    if (pawnsRef.current.includes(toLocation)) console.log(`opponent capturing player's pawn at ${toLocation}`);
     if (toLocation < 30) pawnsRef.current = pawnsRef.current.map(pawnLocation => pawnLocation == toLocation ? index : pawnLocation);
     if (toLocation == 26) warpPieceBackFrom26(false);
     setEnemyPawns(enemyPawnsRef.current);
@@ -62,7 +62,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
     if ([1,4,5].includes(sticksValue)) rollSticks();
     else {
       isPlayerTurnRef.current = true;
-      console.log("no more rolls, now it's player's turn", isPlayerTurnRef.current);
+      console.log("no more rolls, now it's player's turn");
     }
   };
 
@@ -70,7 +70,6 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
   {
     // send piece back to 14 (House #15) or closest open spot before it
     let allPawns:number[] = pawnsRef.current.concat(enemyPawnsRef.current);
-    console.log("all pawn locations by ref", allPawns);
     let toIndex:number = 14;
     while (toIndex >= 0) {
       if (!allPawns.includes(toIndex)) break;
@@ -106,8 +105,6 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
   const pawnCanMove = (index:number, isPlayer:boolean = true) => {
     let myPieces = isPlayer ? pawnsRef.current : enemyPawnsRef.current;
     let opponentPieces = isPlayer ? enemyPawnsRef.current : pawnsRef.current;
-    if (!isPlayer) console.log("index at canmove", index);
-    if (!isPlayer) console.log("mypieces at canmove", myPieces);
     if (isPlayer && !isPlayerTurnRef.current) return false;
     let toLocation:number = index + getSticksValue();
     if (isEnemyGuarded(toLocation, isPlayer)) return false; // if guarded
@@ -139,10 +136,8 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
   }
 
   async function enemyTurn(){
-    console.log("got here");
     while (!isPlayerTurnRef.current)
     {
-      console.log("sticks", getSticksValue());
       // get all possible moves
       let movableEnemyPawns = enemyPawnsRef.current.filter(pawn => pawnCanMove(pawn, false) && pawn < 30);
       console.log("movable pawns", movableEnemyPawns);
@@ -154,7 +149,6 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
       }
       // if any, pick random
       let pickIndex = Math.floor(Math.random() * movableEnemyPawns.length);
-      console.log("picked index...", pickIndex);
       // make move      
       moveEnemyPiece(movableEnemyPawns[pickIndex]);
     }
@@ -167,7 +161,6 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
   async function handleSkipTurn() {
     let movablePawns = (isPlayerTurnRef.current ? pawnsRef.current : enemyPawnsRef.current)
             .filter(pawn => pawnCanMove(pawn, isPlayerTurnRef.current) && pawn < 30);
-    console.log("skipping", isPlayerTurnRef.current, movablePawns);
     if (movablePawns.length > 0) return;
     isPlayerTurnRef.current = !isPlayerTurnRef.current;
     rollSticks();
@@ -184,7 +177,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
                     {pawns.includes(index) && 
                       <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                     {enemyPawns.includes(index) && 
-                      <div className="enemy-piece">P</div>}
+                      <div className="enemy-piece"><FaChessPawn style={{fontSize:'3.5em'}} /></div>}
                   </div>)
                 })}
             </div>
@@ -200,7 +193,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
                     {pawns.includes(index) && 
                       <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                     {enemyPawns.includes(index) && 
-                      <div className="enemy-piece">P</div>}
+                      <div className="enemy-piece"><FaChessPawn style={{fontSize:'3.5em'}} /></div>}
                   </div>
                 ))}
             </div>
@@ -221,15 +214,15 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
                     {pawns.includes(index) && 
                       <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                     {enemyPawns.includes(index) && 
-                      <div className="enemy-piece">P</div>}
+                      <div className="enemy-piece"><FaChessPawn style={{fontSize:'3.5em'}} /></div>}
                   </div>)
                 })}
             </div>
         </div>
         <div>{isPlayerTurn ? <span>You can </span> : <span>Opponent can </span>}move {sticksValue} spaces</div>
         <button onClick={handleSkipTurn}>Skip turn</button>
-        <div>{pawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'white'}} />)})}</div>
-        <div>{enemyPawns.map(pawnLocation => {if (pawnLocation > 29) return (<FaChessPawn style={{color:'black'}} />)})}</div>
+        <div>{pawns.map((pawnLocation,index) => {if (pawnLocation > 29) return (<FaChessPawn key={`playerscore${index}`} style={{color:'white'}} />)})}</div>
+        <div>{enemyPawns.map((pawnLocation,index) => {if (pawnLocation > 29) return (<FaChessPawn key={`opponentscore${index}`} style={{color:'black'}} />)})}</div>
     </>
   )
 }
