@@ -4,7 +4,11 @@ import { GiEyeOfHorus } from 'react-icons/gi';
 import Pawn from './Pawn'
 import './App.css'
 
-function SinglePlayer() {
+type SinglePlayerProps = {
+  gameOverCallback: (playerWon: boolean) => void;
+};
+
+function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
   const sticksRef = useRef([0,0,0,0]);
   const [sticksValue, setSticksValue] = useState(-1);
   const board = new Array(30).fill(null);
@@ -17,7 +21,10 @@ function SinglePlayer() {
   const [enemyPawns, setEnemyPawns] = useState(enemyPawnsRef.current); 
 
   useEffect(() => { setIsPlayerTurn(isPlayerTurnRef.current);}, [isPlayerTurnRef.current]);
-  //useEffect(() => { setPawns(pawnsRef.current); setEnemyPawns(enemyPawnsRef.current); }, [pawnsRef.current, enemyPawnsRef.current]);
+  useEffect(() => { 
+    if (pawnsRef.current.filter(n => n < 30).length == 0) gameOverCallback(true);
+    if (enemyPawnsRef.current.filter(n => n < 30).length == 0) gameOverCallback(false);
+  }, [pawnsRef.current, enemyPawnsRef.current]);
 
   const sleep = (ms:number) => new Promise(resolve => setTimeout(resolve, ms));
 
