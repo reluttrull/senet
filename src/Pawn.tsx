@@ -12,7 +12,7 @@ function Pawn({ index, canMove, moveCallback }: PawnProps) {
 
   return (
     <>
-        <div className={canMove ? "can-move piece" : "piece"} onClick={() => moveCallback(index)}><FaChessPawn style={{fontSize:'3.5em'}} /></div>
+        <div className={canMove ? "can-move piece" : "piece"} onClick={() => moveCallback(index)}><FaChessPawn className="pawn" /></div>
     </>
   )
 }

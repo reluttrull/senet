@@ -179,7 +179,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
                     {pawns.includes(index) && 
                       <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                     {enemyPawns.includes(index) && 
-                      <div className="enemy-piece"><FaChessPawn style={{fontSize:'3.5em'}} /></div>}
+                      <div className="enemy-piece"><FaChessPawn className="pawn" /></div>}
                   </div>)
                 })}
             </div>
@@ -195,7 +195,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
                     {pawns.includes(index) && 
                       <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                     {enemyPawns.includes(index) && 
-                      <div className="enemy-piece"><FaChessPawn style={{fontSize:'3.5em'}} /></div>}
+                      <div className="enemy-piece"><FaChessPawn className="pawn" /></div>}
                   </div>
                 ))}
             </div>
@@ -216,7 +216,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
                     {pawns.includes(index) && 
                       <Pawn index={index} canMove={pawnCanMove(index)} moveCallback={movePiece} />}
                     {enemyPawns.includes(index) && 
-                      <div className="enemy-piece"><FaChessPawn style={{fontSize:'3.5em'}} /></div>}
+                      <div className="enemy-piece"><FaChessPawn className="pawn" /></div>}
                   </div>)
                 })}
             </div>
