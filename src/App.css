@@ -110,3 +110,15 @@
   box-shadow: 0 0 5px 5px rgba(88, 255, 22, 0.63);
   z-index: 4;
 }
+
+.stick {
+  padding-right: 5px;
+}
+
+.stick-face-up {
+  color: red;
+}
+
+.stick-face-down {
+  color: gray;
+}

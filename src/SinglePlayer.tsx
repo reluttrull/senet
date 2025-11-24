@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { FaChessPawn, FaAnkh, FaGuitar, FaWater, FaDiceThree, FaDiceTwo } from 'react-icons/fa6'
+import { FaChessPawn, FaAnkh, FaGuitar, FaWater, FaDiceThree, FaDiceTwo, FaBone } from 'react-icons/fa6'
 import { GiEyeOfHorus } from 'react-icons/gi'
 import Pawn from './Pawn'
 import './App.css'
@@ -10,6 +10,7 @@ type SinglePlayerProps = {
 
 function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
   const sticksRef = useRef([0,0,0,0]);
+  const [displaySticks, setDisplaySticks] = useState(sticksRef.current);
   const [sticksValue, setSticksValue] = useState(-1);
   const board = new Array(30).fill(null);
   const isPlayerTurnRef = useRef(true);
@@ -123,6 +124,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
 
   function rollSticks(){
     sticksRef.current = getSticksRoll();
+    setDisplaySticks(sticksRef.current);
     setSticksValue(getSticksValue());
   }
 
@@ -219,6 +221,7 @@ function SinglePlayer({ gameOverCallback }: SinglePlayerProps) {
                 })}
             </div>
         </div>
+        <div>{displaySticks.map((stick, index) => <FaBone key={`stick${index}`} className={stick == 1 ? "stick stick-face-up" : "stick stick-face-down"} />)}</div>
         <div>{isPlayerTurn ? <span>You can </span> : <span>Opponent can </span>}move {sticksValue} spaces</div>
         <button onClick={handleSkipTurn}>Skip turn</button>
         <div>{pawns.map((pawnLocation,index) => {if (pawnLocation > 29) return (<FaChessPawn key={`playerscore${index}`} style={{color:'white'}} />)})}</div>
