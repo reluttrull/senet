@@ -12,7 +12,7 @@ builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClient", policy =>
-        policy.WithOrigins("https://reluttrull.github.io", "http://localhost:5173")
+        policy.WithOrigins("https://reluttrull.github.io", "http://localhost:5173", "http://localhost:4200")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
