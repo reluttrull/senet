@@ -4,3 +4,7 @@
 GET {{SenetServer_HostAddress}}/game/requestjoingame
 
 ###
+
+GET {{SenetServer_HostAddress}}/game/rollsticks
+
+###

@@ -1,5 +1,6 @@
-﻿using SenetServer.Model;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Memory;
+using SenetServer.Model;
 using SenetServer.SignalR;
 using System.Diagnostics;
 
@@ -11,17 +12,21 @@ namespace SenetServer.Matchmaking
         private readonly ILogger<MatchmakingService> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IUserConnectionManager _connectionManager;
+        private readonly IMemoryCache _memoryCache;
+
 
         public MatchmakingService(
             IMatchmakingQueue matchmakingQueue,
             ILogger<MatchmakingService> logger,
             IHubContext<NotificationHub> hubContext,
-            IUserConnectionManager connectionManager)
+            IUserConnectionManager connectionManager,
+            IMemoryCache memoryCache)
         {
             _matchmakingQueue = matchmakingQueue;
             _logger = logger;
             _hubContext = hubContext;
             _connectionManager = connectionManager;
+            _memoryCache = memoryCache;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -101,6 +106,10 @@ namespace SenetServer.Matchmaking
                     await _hubContext.Clients.Users(connected)
                         .SendAsync("BoardUpdated", gameState.BoardState, cancellationToken: stoppingToken);
 
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromHours(3));
+                    _memoryCache.Set(a.UserId, gameState, cacheEntryOptions);
+                    _memoryCache.Set(b.UserId, gameState, cacheEntryOptions);
                     _logger.LogInformation("Sent MatchResponse to connected subset of users {Users}.", string.Join(",", connected));
                 }
                 catch (OperationCanceledException)
@@ -124,6 +133,10 @@ namespace SenetServer.Matchmaking
                 await _hubContext.Clients.Users(users)
                     .SendAsync("BoardUpdated", gameState.BoardState, cancellationToken: stoppingToken);
 
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromHours(3));
+                _memoryCache.Set(a.UserId, gameState, cacheEntryOptions);
+                _memoryCache.Set(b.UserId, gameState, cacheEntryOptions);
                 _logger.LogInformation("Sent MatchResponse to users {A} and {B}.", a.UserId, b.UserId);
             }
             catch (OperationCanceledException)

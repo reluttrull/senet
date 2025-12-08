@@ -19,15 +19,18 @@ namespace SenetServer.Controllers
         private readonly ILogger<GameController> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IMatchmakingQueue _matchmakingQueue;
+        private readonly IMemoryCache _memoryCache;
 
         public GameController(
             ILogger<GameController> logger,
             IHubContext<NotificationHub> hubContext,
-            IMatchmakingQueue matchmakingQueue)
+            IMatchmakingQueue matchmakingQueue,
+            IMemoryCache memoryCache)
         {
             _logger = logger;
             _hubContext = hubContext;
             _matchmakingQueue = matchmakingQueue;
+            _memoryCache = memoryCache;
         }
 
         [HttpGet]
@@ -50,6 +53,21 @@ namespace SenetServer.Controllers
 
             // return userId for SignalR notifications and userName to display
             return Ok(new { UserId = userId, UserName = userName });
+        }
+
+        [HttpGet]
+        [Route("rollsticks")]
+        public async Task<IActionResult> RollSticks()
+        {
+            var userId = UserIdentity.GetOrCreateUserId(HttpContext);
+
+            if (!_memoryCache.TryGetValue(userId, out GameState? gameState)) return NotFound("Game not found.");
+            if (gameState is null) return NotFound("Game missing data.");
+            gameState.BoardState.RollSticks();
+            await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
+                .SendAsync("BoardUpdated", gameState.BoardState);
+
+            return Ok();
         }
     }
 }
