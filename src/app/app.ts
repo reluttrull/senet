@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import * as signalR from '@microsoft/signalr';
 import { GameInfoBlock } from './components/game-info-block/game-info-block';
 import { Board } from './components/board/board';
+import { ApiService } from './services/api-service';
 
 @Component({
   selector: 'app-root',
@@ -21,15 +22,23 @@ export class App {
   public whitePawns = signal([]);
   public blackPawns = signal([]);
 
+  apiService = inject(ApiService);
+
   requestJoinGame() {
-    fetch(`${this.serverUrl}/game/requestjoingame`, { credentials: 'include' })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('initial server response (generated user info)', data);
-        this.userid.set(data.userId);
-        this.username.set(data.userName);
-        this.connectSignalR(data.userId);
-      });
+    this.apiService.apiRequestJoinGame()
+      .subscribe((startUserInfo) => {
+        console.log('initial server response (generated user info)', startUserInfo);
+        this.username.set(startUserInfo.userName);
+        this.userid.set(startUserInfo.userId);
+        this.connectSignalR(startUserInfo.userId);
+      })
+  }
+
+  rollSticks() {
+    this.apiService.apiRollSticks()
+      .subscribe((result) => {
+        
+      })
   }
   
   async connectSignalR(id: string) {
@@ -41,6 +50,7 @@ export class App {
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(`${this.serverUrl}/notifications`, { withCredentials: true })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
       .build();
 
     // receive match info from server

@@ -45,6 +45,8 @@
     <app-game-info-block [username]="username()" [opponentUsername]="opponentUsername()" />
     @if (gameStarted()) {
       <app-board [sticksValue]="sticksValue()" [whitePawns]="whitePawns()" [blackPawns]="blackPawns()" />
+      <button (click)="rollSticks()">Roll</button>
+      <div>{{ sticksValue() }}</div>
     }
   </div>
 </main>
