@@ -1,4 +1,6 @@
-﻿namespace SenetServer.Model
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+
+namespace SenetServer.Model
 {
     public class BoardState
     {
@@ -6,8 +8,9 @@
         public List<int> BlackPositions { get; set; }
         public List<int> MovablePositions { get; set; }
         public List<int> Sticks { get; set; } = new List<int>();
-        public int SticksValue { get; set; }
+        public int SticksValue { get; set; } = 0;
         public bool IsWhiteTurn { get; set; } = true;
+        private List<int> ReRollValues { get; set; } = [0, 1, 4, 5];
         public BoardState()
         {
             WhitePositions = new List<int>() { 0, 2, 4, 6, 8 };
@@ -22,6 +25,7 @@
         }
         public void RollSticks()
         {
+            if (!ReRollValues.Contains(SticksValue)) IsWhiteTurn = !IsWhiteTurn;
             Sticks.Clear();
             Random random = new Random();
             for (int i = 0; i < 4; i++)
@@ -32,20 +36,28 @@
             SetCanMove();
         }
 
-        private bool PawnCanMove(int index)
+        public bool MovePawn(int position)
+        {
+            int index = (IsWhiteTurn ? WhitePositions : BlackPositions).FindIndex(pawn => pawn == position);
+            if (index < 0) return false; // could not find pawn
+            (IsWhiteTurn ? WhitePositions : BlackPositions)[index] = position + SticksValue;
+            return true;
+        }
+
+        private bool PawnCanMove(int location)
         {
             List<int> sameColor = IsWhiteTurn ? WhitePositions : BlackPositions;
             List<int> differentColor = IsWhiteTurn ? BlackPositions : WhitePositions;
             List<int> safeSquares = [14, 25, 27, 28];
-            int targetLocation = index + SticksValue;
+            int targetLocation = location + SticksValue;
 
             if (IsEnemyGuarded(differentColor, targetLocation)) return false; // can't swap guarded pawns
             if (safeSquares.Contains(targetLocation)) return false; // can't capture on safe squares
             if (IsEnemyBlockaded(differentColor, targetLocation)) return false; // can't pass blockade
             if (sameColor.Contains(targetLocation) && targetLocation < 30) return false; // can't oust own pawn
-            if (index == 25 || (index == 29 && targetLocation > 29)) return true; // home free from 25
-            if (targetLocation > 25 && targetLocation < 30 && index != 25) return false; // did not pass go
-            if ((index == 27 || index == 28) && targetLocation != 30) return false; // need to roll exactly 3 and 2, respectively
+            if (location == 25 || (location == 29 && targetLocation > 29)) return true; // home free from 25
+            if (targetLocation > 25 && targetLocation < 30 && location != 25) return false; // did not pass go
+            if ((location == 27 || location == 28) && targetLocation != 30) return false; // need to roll exactly 3 and 2, respectively
             return true; // otherwise, all good
         }
 

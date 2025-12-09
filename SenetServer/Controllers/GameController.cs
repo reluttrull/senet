@@ -60,9 +60,27 @@ namespace SenetServer.Controllers
         public async Task<IActionResult> RollSticks()
         {
             var userId = UserIdentity.GetOrCreateUserId(HttpContext);
-
             if (!_memoryCache.TryGetValue(userId, out GameState? gameState)) return NotFound("Game not found.");
             if (gameState is null) return NotFound("Game missing data.");
+
+            gameState.BoardState.RollSticks();
+            await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
+                .SendAsync("BoardUpdated", gameState.BoardState);
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("movepawn")]
+        public async Task<IActionResult> MovePawn([FromQuery]int startPosition)
+        {
+            var userId = UserIdentity.GetOrCreateUserId(HttpContext);
+            if (!_memoryCache.TryGetValue(userId, out GameState? gameState)) return NotFound("Game not found.");
+            if (gameState is null) return NotFound("Game missing data.");
+
+            bool success = gameState.BoardState.MovePawn(startPosition);
+            if (!success) return NotFound("Pawn not found.");
+
             gameState.BoardState.RollSticks();
             await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
                 .SendAsync("BoardUpdated", gameState.BoardState);
