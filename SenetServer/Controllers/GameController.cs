@@ -99,6 +99,7 @@ namespace SenetServer.Controllers
             bool nextTurnIsWhiteTurn = !gameState.BoardState.IsWhiteTurn;
             gameState.BoardState.RollSticks();
             gameState.BoardState.IsWhiteTurn = nextTurnIsWhiteTurn;
+            gameState.BoardState.SetCanMove();
 
             await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
                 .SendAsync("BoardUpdated", gameState.BoardState);
