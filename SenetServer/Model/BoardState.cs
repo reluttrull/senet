@@ -41,12 +41,14 @@ namespace SenetServer.Model
             int index = (IsWhiteTurn ? WhitePositions : BlackPositions).FindIndex(pawn => pawn == position);
             if (index < 0) return false; // could not find pawn
             (IsWhiteTurn ? WhitePositions : BlackPositions)[index] = position + SticksValue;
+            if (position + SticksValue == 26) (IsWhiteTurn ? WhitePositions : BlackPositions)[index] = GetWarpToLocation();
             // swap?
             int swapIndex = (IsWhiteTurn ? BlackPositions : WhitePositions).FindIndex(pawn => pawn == position + SticksValue && pawn < 30);
             if (swapIndex >= 0)
             {
                 (IsWhiteTurn ? BlackPositions : WhitePositions)[swapIndex] = position;
             }
+            // warp?
             return true;
         }
 
@@ -87,6 +89,15 @@ namespace SenetServer.Model
                 && (enemyPieces.Contains(targetIndex - 1) || enemyPieces.Contains(targetIndex - 4))) return true;
             return false;
 
+        }
+
+        private int GetWarpToLocation()
+        {
+            for (int i = 14; i >= 0; i--)
+            {
+                if (!WhitePositions.Contains(i) && !BlackPositions.Contains(i)) return i;
+            }
+            return -1;
         }
 
         private int GetSticksValue()
