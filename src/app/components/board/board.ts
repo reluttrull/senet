@@ -10,9 +10,11 @@ import { ApiService } from '../../services/api-service';
   styleUrls: ['./board.css']
 })
 export class Board {
+  isPlayerTurn = input();
   sticksValue = input();
   whitePawns = input.required<number[]>();
   blackPawns = input.required<number[]>();
+  movablePawns = input.required<number[]>();
 
   apiService = inject(ApiService);
 

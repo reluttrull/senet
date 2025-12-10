@@ -68,6 +68,10 @@
   transform: scale(2);
 }
 
+.movable {
+  background: radial-gradient(circle at center, rgba(255, 251, 0, 1) 0%, transparent 70%);
+}
+
 .white {
   color: white;
 }

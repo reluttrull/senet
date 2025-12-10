@@ -18,10 +18,13 @@ export class App {
   public gameStarted = signal(false);
   public userid = signal('');
   public username = signal('');
+  public isPlayerWhite = signal(false);
   public opponentUsername = signal('');
+  public isWhiteTurn = signal(true);
   public sticksValue = signal(0);
   public whitePawns = signal([]);
   public blackPawns = signal([]);
+  public movablePawns = signal([]);
 
   apiService = inject(ApiService);
 
@@ -57,8 +60,14 @@ export class App {
     // receive match info from server
     connection.on("MatchFound", (message) => {
       console.log("Message from SignalR hub: matched with opponent", message);
-      if (message.playerWhite?.userId == id) this.opponentUsername.set(message.playerBlack?.userName);
-      else this.opponentUsername.set(message.playerWhite?.userName);
+      if (message.playerWhite?.userId == id) {
+        this.opponentUsername.set(message.playerBlack?.userName);
+        this.isPlayerWhite.set(true);
+      }
+      else {
+        this.opponentUsername.set(message.playerWhite?.userName);
+        this.isPlayerWhite.set(false);
+      }
       this.gameStarted.set(true);
     });
     // receive board state updates from server
@@ -67,6 +76,8 @@ export class App {
       this.sticksValue.set(message.sticksValue);
       this.whitePawns.set(message.whitePositions);
       this.blackPawns.set(message.blackPositions);
+      this.movablePawns.set(message.movablePositions);
+      this.isWhiteTurn.set(message.isWhiteTurn);
     });
 
     try {
