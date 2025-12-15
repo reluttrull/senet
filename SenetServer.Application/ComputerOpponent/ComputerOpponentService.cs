@@ -55,7 +55,58 @@ namespace SenetServer.Application.ComputerOpponent
         private async Task PlayTurnAsync(GameState gameState, CancellationToken stoppingToken)
         {
             _logger.LogInformation("playing turn in game");
-            await Task.Delay(1000);
+            bool isComputerWhite = gameState.PlayerWhite.UserName == Constants.ComputerOpponentName;
+            string humanUserId = isComputerWhite ? gameState.PlayerBlack.UserId : gameState.PlayerWhite.UserId;
+            Random rand = new();
+            bool stillMoving = true;
+            
+            while (stillMoving)
+            {
+                await Task.Delay(1000, stoppingToken);
+                stillMoving = gameState.BoardState.SticksValue is 1 or 4 or 5;
+                if (gameState.BoardState.MovablePositions.Count > 0)
+                {
+                    int randomPawn = gameState.BoardState.MovablePositions.ElementAt(rand.Next(0, gameState.BoardState.MovablePositions.Count));
+                    _logger.LogInformation("Computer opponent moving pawn {randomPawn} by {sticks} spaces in game against user {humanUserId}", 
+                        randomPawn, gameState.BoardState.SticksValue, humanUserId);
+                    gameState.BoardState.MovePawn(randomPawn);
+                    gameState.BoardState.RollSticks();
+                }
+                else
+                {
+                    bool nextTurnIsWhiteTurn = !gameState.BoardState.IsWhiteTurn;
+                    gameState.BoardState.RollSticks();
+                    gameState.BoardState.IsWhiteTurn = nextTurnIsWhiteTurn;
+                    gameState.BoardState.SetCanMove();
+                    _logger.LogInformation("Computer opponent skipping turn in game against user {humanUserId}", humanUserId);
+                    stillMoving = false;
+                }
+                _logger.LogInformation("Computer opponent rolled {lastRoll} in game against user {humanUserId}", gameState.BoardState.SticksValue, humanUserId);
+
+                await _hubContext.Clients.User(humanUserId)
+                    .SendAsync("BoardUpdated", gameState.BoardState);
+
+                await CheckGameOver(gameState, humanUserId);
+                //stillMoving = stillMoving && gameState.BoardState.SticksValue is 1 or 4 or 5;
+            }
+
+            _logger.LogInformation("Computer opponent finished playing turn in game against user {humanUserId}", humanUserId);
+        }
+
+        private async Task CheckGameOver(GameState gameState, string userId)
+        {
+            if (!gameState.BoardState.WhitePositions.Any(p => p < 30))
+            {
+                await _hubContext.Clients.User(userId)
+                    .SendAsync("GameOver", gameState.PlayerWhite);
+                _memoryCache.Remove(userId);
+            }
+            if (!gameState.BoardState.BlackPositions.Any(p => p < 30))
+            {
+                await _hubContext.Clients.User(userId)
+                    .SendAsync("GameOver", gameState.PlayerBlack);
+                _memoryCache.Remove(userId);
+            }
         }
     }
 }
