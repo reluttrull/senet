@@ -81,6 +81,11 @@ export class App {
       }
       this.gameStarted.set(true);
     });
+
+    connection.on("MatchNotFound", (message) => {
+      console.log("Message from SignalR hub: no other players online");
+    });
+
     // receive board state updates from server
     connection.on("BoardUpdated", (message) => {
       console.log("Message from SignalR hub: game board updated", message);
