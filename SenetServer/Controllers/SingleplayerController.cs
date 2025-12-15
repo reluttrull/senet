@@ -1,29 +1,23 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.FileProviders.Physical;
-using SenetServer.Mapping;
 using SenetServer.Matchmaking;
 using SenetServer.Model;
-using SenetServer.Shared;
 using SenetServer.SignalR;
-using System;
 
 namespace SenetServer.Controllers
 {
     [ApiController]
-    [Route("game")]
-    public class GameController : ControllerBase
+    [Route("singleplayer")]
+    public class SingleplayerController : ControllerBase
     {
-        private readonly ILogger<GameController> _logger;
+        private readonly ILogger<MultiplayerController> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IMatchmakingQueue _matchmakingQueue;
         private readonly IMemoryCache _memoryCache;
 
-        public GameController(
-            ILogger<GameController> logger,
+        public SingleplayerController(
+            ILogger<MultiplayerController> logger,
             IHubContext<NotificationHub> hubContext,
             IMatchmakingQueue matchmakingQueue,
             IMemoryCache memoryCache)
@@ -35,43 +29,38 @@ namespace SenetServer.Controllers
         }
 
         [HttpGet]
-        [Route("games")]
-        public async Task<IActionResult> RequestJoinGame()
+        [Route("games/{userName}/{userId}")]
+        public async Task<IActionResult> RequestJoinGame(string userName, string userId)
         {
-            var userId = UserIdentity.GetOrCreateUserId(HttpContext);
+            _logger.LogInformation("Starting singleplayer game for user {UserId}: {UserName}", userId, userName);
 
-            string userName = UsernameGenerator.GetNewUsername() ?? $"Anonymous{new Random().Next(10000)}";
-
-            var request = new MatchRequest
+            var gameState = new GameState(new User(userId, userName), new User(string.Empty, Constants.ComputerOpponentName));
+            var matchResponse = new MatchResponse()
             {
-                UserId = userId,
-                UserName = userName,
-                TimeAdded = DateTime.UtcNow
+                PlayerWhite = gameState.PlayerWhite,
+                PlayerBlack = gameState.PlayerBlack,
+                TimeMatched = DateTime.UtcNow
             };
+            await _hubContext.Clients.User(userId)
+                .SendAsync("MatchFound", matchResponse);
 
-            await _matchmakingQueue.EnqueueAsync(request);
-            _logger.LogInformation("Enqueued match request for user {UserId}: {UserName}", userId, userName);
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromHours(3));
+            _memoryCache.Set(userId, gameState, cacheEntryOptions);
+            _logger.LogInformation("Sent MatchResponse to singleplayer user {userId}.", string.Join(",", userId));
 
-            UserInfo userInfo = new UserInfo()
-            {
-                UserId = userId,
-                UserName = userName
-            };
-            // return 202 with userId for SignalR notifications and userName for display
-            // meanwhile, background service still has to process matches in queue
-            return Accepted(ContractMapping.MapToResponse(userInfo));
+            return Ok();
         }
 
         [HttpPut]
         [Route("sticks/{userId}")]
         public async Task<IActionResult> RollSticks(string userId)
         {
-            //var userId = UserIdentity.GetOrCreateUserId(HttpContext);
             if (!_memoryCache.TryGetValue(userId, out GameState? gameState)) return NotFound("Game not found.");
             if (gameState is null) return NotFound("Game missing data.");
 
             gameState.BoardState.RollSticks();
-            await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
+            await _hubContext.Clients.User(userId)
                 .SendAsync("BoardUpdated", gameState.BoardState);
 
             return Ok();
@@ -81,7 +70,6 @@ namespace SenetServer.Controllers
         [Route("pawns/{userId}/{startPosition}")]
         public async Task<IActionResult> MovePawn(string userId, int startPosition)
         {
-            //var userId = UserIdentity.GetOrCreateUserId(HttpContext);
             if (!_memoryCache.TryGetValue(userId, out GameState? gameState)) return NotFound("Game not found.");
             if (gameState is null) return NotFound("Game missing data.");
 
@@ -89,23 +77,23 @@ namespace SenetServer.Controllers
             if (!success) return NotFound("Pawn not found.");
 
             gameState.BoardState.RollSticks();
-            await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
+            await _hubContext.Clients.User(userId)
                 .SendAsync("BoardUpdated", gameState.BoardState);
 
             if (!gameState.BoardState.WhitePositions.Any(p => p < 30))
             {
-                await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
+                await _hubContext.Clients.User(userId)
                     .SendAsync("GameOver", gameState.PlayerWhite);
-                _memoryCache.Remove(gameState.PlayerWhite.UserId);
-                _memoryCache.Remove(gameState.PlayerBlack.UserId);
+                _memoryCache.Remove(userId);
             }
             if (!gameState.BoardState.BlackPositions.Any(p => p < 30))
             {
-                await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
+                await _hubContext.Clients.User(userId)
                     .SendAsync("GameOver", gameState.PlayerBlack);
-                _memoryCache.Remove(gameState.PlayerWhite.UserId);
-                _memoryCache.Remove(gameState.PlayerBlack.UserId);
+                _memoryCache.Remove(userId);
             }
+
+            // if computer's turn, start moving
 
             return Ok();
         }
@@ -114,7 +102,6 @@ namespace SenetServer.Controllers
         [Route("turns/{userId}/{isWhiteTurn}")]
         public async Task<IActionResult> ChangeTurn(string userId, bool isWhiteTurn)
         {
-            //var userId = UserIdentity.GetOrCreateUserId(HttpContext);
             if (!_memoryCache.TryGetValue(userId, out GameState? gameState)) return NotFound("Game not found.");
             if (gameState is null) return NotFound("Game missing data.");
 
@@ -123,8 +110,10 @@ namespace SenetServer.Controllers
             gameState.BoardState.IsWhiteTurn = nextTurnIsWhiteTurn;
             gameState.BoardState.SetCanMove();
 
-            await _hubContext.Clients.Users([gameState.PlayerWhite.UserId, gameState.PlayerBlack.UserId])
+            await _hubContext.Clients.User(userId)
                 .SendAsync("BoardUpdated", gameState.BoardState);
+
+            // if computer's turn, start moving
 
             return Ok();
         }

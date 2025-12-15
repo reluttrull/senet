@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SenetServer.Contracts.Responses
+﻿namespace SenetServer.Contracts.Responses
 {
     public class UserInfoResponse
     {

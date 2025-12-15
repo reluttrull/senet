@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
 using SenetServer.Shared;
-using System.Threading.Tasks;
 
 namespace SenetServer.SignalR
 {
