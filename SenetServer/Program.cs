@@ -2,6 +2,7 @@ using SenetServer.Matchmaking;
 using SenetServer.Shared;
 using SenetServer.SignalR;
 using Microsoft.AspNetCore.SignalR;
+using SenetServer.Application.ComputerOpponent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,8 +20,10 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<IMatchmakingQueue, MatchmakingQueue>();
+builder.Services.AddSingleton<IComputerOpponentQueue, ComputerOpponentQueue>();
 
 builder.Services.AddHostedService<MatchmakingService>();
+builder.Services.AddHostedService<ComputerOpponentService>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
