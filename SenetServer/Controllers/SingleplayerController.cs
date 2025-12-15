@@ -43,6 +43,8 @@ namespace SenetServer.Controllers
             };
             await _hubContext.Clients.User(userId)
                 .SendAsync("MatchFound", matchResponse);
+            await _hubContext.Clients.User(userId)
+                .SendAsync("BoardUpdated", gameState.BoardState);
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromHours(3));

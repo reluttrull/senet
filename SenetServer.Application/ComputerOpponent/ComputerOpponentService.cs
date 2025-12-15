@@ -55,7 +55,7 @@ namespace SenetServer.Application.ComputerOpponent
         private async Task PlayTurnAsync(GameState gameState, CancellationToken stoppingToken)
         {
             Console.WriteLine("playing turn in game");
-            throw new NotImplementedException();
+            await Task.Delay(1000);
         }
     }
 }

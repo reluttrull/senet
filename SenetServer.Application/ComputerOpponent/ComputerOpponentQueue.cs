@@ -16,14 +16,10 @@ namespace SenetServer.Application.ComputerOpponent
             };
             _queue = Channel.CreateBounded<GameState>(options);
         }
-        public ValueTask<GameState> DequeueAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async ValueTask EnqueueAsync(GameState gameState) =>
+                    await _queue.Writer.WriteAsync(gameState);
 
-        public ValueTask EnqueueAsync(GameState gameState)
-        {
-            throw new NotImplementedException();
-        }
+        public async ValueTask<GameState> DequeueAsync(CancellationToken cancellationToken) =>
+            await _queue.Reader.ReadAsync(cancellationToken);
     }
 }
