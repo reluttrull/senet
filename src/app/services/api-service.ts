@@ -9,8 +9,15 @@ import { utilities } from '../shared/utilities'
 export class ApiService {
   http = inject(HttpClient);
   
-  apiRequestJoinGame(gametype:string) {
-    return this.http.get<UserInfo>(`${utilities.serverUrl}/${gametype}/games`, {
+  apiRequestJoinMultiplayerGame() {
+    return this.http.get<UserInfo>(`${utilities.serverUrl}/multiplayer/games`, {
+      withCredentials: true
+    })
+  }
+  
+  apiRequestJoinSingleplayerGame(userid:string, username:string) {
+    console.log('got here', userid, username);
+    return this.http.get(`${utilities.serverUrl}/singleplayer/games/${username}/${userid}`, {
       withCredentials: true
     })
   }

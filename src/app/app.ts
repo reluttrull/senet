@@ -31,15 +31,24 @@ export class App {
 
   apiService = inject(ApiService);
 
-  requestJoinGame() {
+  requestJoinMultiplayerGame() {
     this.gameOver.set(false);
-    this.apiService.apiRequestJoinGame(utilities.getPath(this.isMultiplayer()))
+    this.apiService.apiRequestJoinMultiplayerGame()
       .subscribe((startUserInfo) => {
         console.log('initial server response (generated user info)', startUserInfo);
         this.username.set(startUserInfo.userName);
         this.userid.set(startUserInfo.userId);
         this.opponentUsername.set('');
         this.connectSignalR(startUserInfo.userId);
+      })
+  }
+  requestJoinSingleplayerGame(userid:string = '', username:string = '') {
+    this.gameOver.set(false);
+    this.apiService.apiRequestJoinSingleplayerGame(userid, username)
+      .subscribe(() => {
+        console.log('initial server response');
+        this.opponentUsername.set('Computer');
+        this.connectSignalR(userid);
       })
   }
 
@@ -85,6 +94,9 @@ export class App {
 
     connection.on("MatchNotFound", (message) => {
       console.log("Message from SignalR hub: no other players online");
+      alert('No players found to match with - connecting to computer opponent.');
+      this.isMultiplayer.set(false);
+      this.requestJoinSingleplayerGame(this.userid(), this.username());
     });
 
     // receive board state updates from server

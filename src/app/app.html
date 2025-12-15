@@ -7,7 +7,7 @@
     }
     @if (!gameStarted() || gameOver()) {
       <div class="join-game-button">
-        <button (click)="requestJoinGame()">Join Game</button>
+        <button (click)="requestJoinMultiplayerGame()">Join Game</button>
       </div>
     }
     @if (userid().length > 0 && !gameOver()) {
