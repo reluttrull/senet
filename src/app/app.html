@@ -17,6 +17,7 @@
         <button matButton tonal (click)="requestJoinMultiplayerGame()">Join Game</button>
       </div>
     }
+    <h2>Wins: {{ numberOfWins }} Losses: {{ numberOfLosses }}</h2>
     @if (userid().length > 0 && !gameOver) {
       <app-game-info-block [username]="username()" [opponentUsername]="opponentUsername()" />
     }

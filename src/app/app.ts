@@ -17,6 +17,9 @@ import { utilities } from './shared/utilities';
 export class App {
   public gameStarted = false;
   public gameOver = false;
+  public connected = false;
+  public numberOfWins = 0;
+  public numberOfLosses = 0;
   public userid = signal('');
   public username = signal('');
   public isPlayerWhite = signal(false);
@@ -41,7 +44,7 @@ export class App {
         this.username.set(startUserInfo.userName);
         this.userid.set(startUserInfo.userId);
         this.opponentUsername.set('');
-        this.connectSignalR(startUserInfo.userId);
+        if (!this.connected) this.connectSignalR(startUserInfo.userId);
       })
   }
   requestJoinSingleplayerGame() {
@@ -50,7 +53,7 @@ export class App {
       .subscribe(() => {
         console.log('initial server response');
         this.opponentUsername.set('Computer');
-        this.connectSignalR(this.userid());
+        if (!this.connected) this.connectSignalR(this.userid());
       })
   }
 
@@ -122,6 +125,8 @@ export class App {
       console.log("Message from SignalR hub: game over", message);
       this.gameOver = true;
       this.winner.set(message.userId);
+      this.numberOfWins += message.userId == this.userid() ? 1 : 0;
+      this.numberOfLosses += message.userId == this.userid() ? 0 : 1;
       this.whitePawns.set([]);
       this.blackPawns.set([]);
       this.movablePawns.set([]);
@@ -131,6 +136,7 @@ export class App {
     try {
       await connection.start();
       console.log("SignalR connected with userId:", id);
+      this.connected = true;
     } catch (err) {
       console.error("Failed to start or register SignalR connection", err);
     }
