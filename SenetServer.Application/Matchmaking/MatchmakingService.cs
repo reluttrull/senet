@@ -50,10 +50,10 @@ namespace SenetServer.Matchmaking
                     }
 
                     var first = await _matchmakingQueue.DequeueAsync(stoppingToken);
-                    _logger.LogInformation("Dequeued first match request for user {UserId}: {UserName} (queued at {TimeAdded})", first.UserId, first.UserName, first.TimeAdded);
+                    _logger.LogDebug("Dequeued first match request for user {UserId}: {UserName} (queued at {TimeAdded})", first.UserId, first.UserName, first.TimeAdded);
 
                     var second = await _matchmakingQueue.DequeueAsync(stoppingToken);
-                    _logger.LogInformation("Dequeued second match request for user {UserId}: {UserName} (queued at {TimeAdded})", second.UserId, second.UserName, second.TimeAdded);
+                    _logger.LogDebug("Dequeued second match request for user {UserId}: {UserName} (queued at {TimeAdded})", second.UserId, second.UserName, second.TimeAdded);
 
                     await ProcessMatchmakingPairAsync(first, second, stoppingToken);
                 }
@@ -95,13 +95,13 @@ namespace SenetServer.Matchmaking
                             MatchRequest requestToRemove = await _matchmakingQueue.DequeueAsync(stoppingToken);
                             if (requestToRemove is null || item.UserId != requestToRemove.UserId)
                             {
-                                _logger.LogInformation("Problem removing expired match request for user {UserId}: {UserName} (queued at {TimeAdded})", item.UserId, item.UserName, item.TimeAdded);
+                                _logger.LogWarning("Problem removing expired match request for user {UserId}: {UserName} (queued at {TimeAdded})", item.UserId, item.UserName, item.TimeAdded);
                                 break; // if we ran into one race condition, we'll likely run into more - abort task
                             }
                             await _hubContext.Clients.User(requestToRemove.UserId)
                                 .SendAsync("MatchNotFound", cancellationToken: stoppingToken);
                             removedCount++;
-                            _logger.LogInformation("Removed expired match request for user {UserId}: {UserName} (queued at {TimeAdded})", item.UserId, item.UserName, item.TimeAdded);
+                            _logger.LogDebug("Removed expired match request for user {UserId}: {UserName} (queued at {TimeAdded})", item.UserId, item.UserName, item.TimeAdded);
                         }
                         else
                         {
@@ -180,7 +180,7 @@ namespace SenetServer.Matchmaking
                         .SetSlidingExpiration(TimeSpan.FromHours(3));
                     _memoryCache.Set(a.UserId, gameState, cacheEntryOptions);
                     _memoryCache.Set(b.UserId, gameState, cacheEntryOptions);
-                    _logger.LogInformation("Sent MatchResponse to connected subset of users {Users}.", string.Join(",", connected));
+                    _logger.LogDebug("Sent MatchResponse to connected subset of users {Users}.", string.Join(",", connected));
                 }
                 catch (OperationCanceledException)
                 {
@@ -207,7 +207,7 @@ namespace SenetServer.Matchmaking
                     .SetSlidingExpiration(TimeSpan.FromHours(3));
                 _memoryCache.Set(a.UserId, gameState, cacheEntryOptions);
                 _memoryCache.Set(b.UserId, gameState, cacheEntryOptions);
-                _logger.LogInformation("Sent MatchResponse to users {A} and {B}.", a.UserId, b.UserId);
+                _logger.LogDebug("Sent MatchResponse to users {A} and {B}.", a.UserId, b.UserId);
             }
             catch (OperationCanceledException)
             {

@@ -50,7 +50,7 @@ namespace SenetServer.Controllers
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromHours(3));
             _memoryCache.Set(userId, gameState, cacheEntryOptions);
-            _logger.LogInformation("Sent MatchResponse to singleplayer user {userId}.", userId);
+            _logger.LogDebug("Sent MatchResponse to singleplayer user {userId}.", userId);
 
             return Ok();
         }

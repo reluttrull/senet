@@ -37,7 +37,7 @@ namespace SenetServer.Application.ComputerOpponent
                 {
                     var gameState = await _computerOpponentQueue.DequeueAsync(stoppingToken);
                     // todo: human player won't always be white
-                    _logger.LogInformation("Computer opponent queued next game against user {UserId}: {UserName}", gameState.PlayerWhite.UserId, gameState.PlayerWhite.UserName);
+                    _logger.LogDebug("Computer opponent queued next game against user {UserId}: {UserName}", gameState.PlayerWhite.UserId, gameState.PlayerWhite.UserName);
 
                     await PlayTurnAsync(gameState, stoppingToken);
                 }
@@ -54,9 +54,9 @@ namespace SenetServer.Application.ComputerOpponent
 
         private async Task PlayTurnAsync(GameState gameState, CancellationToken stoppingToken)
         {
-            _logger.LogInformation("playing turn in game");
             bool isComputerWhite = gameState.PlayerWhite.UserName == Constants.ComputerOpponentName;
             string humanUserId = isComputerWhite ? gameState.PlayerBlack.UserId : gameState.PlayerWhite.UserId;
+            _logger.LogDebug("Computer opponent playing turn in game against user {humanUserId}.", humanUserId);
             Random rand = new();
             bool stillMoving = true;
             
@@ -67,7 +67,7 @@ namespace SenetServer.Application.ComputerOpponent
                 if (gameState.BoardState.MovablePositions.Count > 0)
                 {
                     int randomPawn = gameState.BoardState.MovablePositions.ElementAt(rand.Next(0, gameState.BoardState.MovablePositions.Count));
-                    _logger.LogInformation("Computer opponent moving pawn {randomPawn} by {sticks} spaces in game against user {humanUserId}", 
+                    _logger.LogDebug("Computer opponent moving pawn {randomPawn} by {sticks} spaces in game against user {humanUserId}", 
                         randomPawn, gameState.BoardState.SticksValue, humanUserId);
                     gameState.BoardState.MovePawn(randomPawn);
                     gameState.BoardState.RollSticks();
@@ -78,10 +78,10 @@ namespace SenetServer.Application.ComputerOpponent
                     gameState.BoardState.RollSticks();
                     gameState.BoardState.IsWhiteTurn = nextTurnIsWhiteTurn;
                     gameState.BoardState.SetCanMove();
-                    _logger.LogInformation("Computer opponent skipping turn in game against user {humanUserId}", humanUserId);
+                    _logger.LogDebug("Computer opponent skipping turn in game against user {humanUserId}", humanUserId);
                     stillMoving = false;
                 }
-                _logger.LogInformation("Computer opponent rolled {lastRoll} in game against user {humanUserId}", gameState.BoardState.SticksValue, humanUserId);
+                _logger.LogDebug("Computer opponent rolled {lastRoll} in game against user {humanUserId}", gameState.BoardState.SticksValue, humanUserId);
 
                 await _hubContext.Clients.User(humanUserId)
                     .SendAsync("BoardUpdated", gameState.BoardState);
@@ -90,7 +90,7 @@ namespace SenetServer.Application.ComputerOpponent
                 //stillMoving = stillMoving && gameState.BoardState.SticksValue is 1 or 4 or 5;
             }
 
-            _logger.LogInformation("Computer opponent finished playing turn in game against user {humanUserId}", humanUserId);
+            _logger.LogDebug("Computer opponent finished playing turn in game against user {humanUserId}", humanUserId);
         }
 
         private async Task CheckGameOver(GameState gameState, string userId)
