@@ -37,6 +37,7 @@ export class App {
 
   requestJoinMultiplayerGame() {
     this.gameOver = false;
+    this.gameStarted = false;
     this.waitingForMatch = true;
     this.apiService.apiRequestJoinMultiplayerGame(this.userid(), this.username())
       .subscribe((startUserInfo) => {
@@ -49,6 +50,7 @@ export class App {
   }
   requestJoinSingleplayerGame() {
     this.gameOver = false;
+    this.gameStarted = false;
     this.apiService.apiRequestJoinSingleplayerGame(this.userid(), this.username())
       .subscribe(() => {
         console.log('initial server response');
@@ -93,6 +95,20 @@ export class App {
     // receive match info from server
     connection.on("MatchFound", (message) => {
       console.log("Message from SignalR hub: matched with opponent", message);
+      this.isMultiplayer.set(true);
+      if (message.playerWhite?.userId == id) {
+        this.opponentUsername.set(message.playerBlack?.userName);
+        this.isPlayerWhite.set(true);
+      }
+      else {
+        this.opponentUsername.set(message.playerWhite?.userName);
+        this.isPlayerWhite.set(false);
+      }
+      this.gameStarted = true;
+    });
+    
+    connection.on("ComputerMatchFound", (message) => {
+      console.log("Message from SignalR hub: matched with computer opponent", message);
       if (message.playerWhite?.userId == id) {
         this.opponentUsername.set(message.playerBlack?.userName);
         this.isPlayerWhite.set(true);

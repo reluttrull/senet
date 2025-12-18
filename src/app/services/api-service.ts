@@ -22,7 +22,6 @@ export class ApiService {
   }
 
   apiQuitGame(userid:string, gametype:string) {
-    console.log('did delete',`${utilities.serverUrl}/${gametype}/game/${userid}`);
     return this.http.delete(`${utilities.serverUrl}/${gametype}/game/${userid}`, {
       withCredentials: true
     })
