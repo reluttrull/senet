@@ -25,11 +25,6 @@ h2 {
   font-style: normal;
 }
 
-.intro {
-    font-size: 1.8em;
-    color: rgb(51, 51, 51);
-}
-
 p {
     margin: 0;
 }
@@ -46,6 +41,7 @@ main {
     box-shadow: 2px 3px 20px black, 0 0 60px #8a4d0f inset;
     background: #fffef0;
     filter: url(#wavy2);
+    font-size: 16px;
     font-family: "IM Fell Great Primer", serif;
 }
 .join-game-button {
@@ -54,7 +50,12 @@ main {
 }
 
 .join-game-button button {
-    
+    font-size: 16px;
+    font-family: "IM Fell Great Primer", serif;
+}
+
+.quit-game-button button {
+    font-size: 16px;
     font-family: "IM Fell Great Primer", serif;
 }
 

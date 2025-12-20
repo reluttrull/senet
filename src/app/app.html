@@ -1,11 +1,20 @@
 <main class="main">
   <div>
-    <a href="https://royalur.net/senet#how-to-play" target="_blank" rel="noopener noreferrer" alt="rules link">
-      How to play 
-      <span class="material-icons">open_in_new</span>
-    </a>
+    <div class="two-column-flex-container">
+      <div>
+        <a href="https://royalur.net/senet#how-to-play" target="_blank" rel="noopener noreferrer" alt="rules link">
+          How to play 
+          <span class="material-icons">open_in_new</span>
+        </a>
+      </div>
+      @if (gameStarted && !gameOver) {
+        <div class="quit-game-button">
+          <button matButton tonal (click)="quitGame()">Quit Game</button>
+        </div>
+      }
+    </div>
     <h2 class="intro">Ancient Rematch presents:</h2>
-    <h1>Senet Client</h1>
+    <h1>Senet</h1>
     @if (waitingForMatch) {
       <div class="spinner-container">
         <div class="spinner"></div>
@@ -19,11 +28,6 @@
     @if (!waitingForMatch && (!gameStarted || gameOver)) {
       <div class="join-game-button">
         <button matButton tonal (click)="requestJoinMultiplayerGame()">Join Game</button>
-      </div>
-    }
-    @if (gameStarted && !gameOver) {
-      <div class="quit-game-button">
-        <button matButton tonal (click)="quitGame()">Quit Game</button>
       </div>
     }
     <h2>Wins: {{ numberOfWins }} Losses: {{ numberOfLosses }}</h2>
