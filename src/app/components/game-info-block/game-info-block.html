@@ -1,0 +1,26 @@
+<div class="two-column-flex-container">
+    <div class="flex-item">
+        <span class="player-identifier" [class.white]="isPlayerWhite()">You: {{ username() }}</span>
+        @if (isPlayerWhite()) {
+            @for (pawn of [].constructor(whitePawns() | currentScore); track $index) {
+                <span class="material-icons white scale-down">circle</span>
+            }
+        } @else {
+            @for (pawn of [].constructor(blackPawns() | currentScore); track $index) {
+                <span class="material-icons black scale-down">circle</span>
+            }
+        }
+    </div>
+    <div class="flex-item">
+        <span class="player-identifier" [class.white]="!isPlayerWhite()">Opponent: {{ opponentUsername() }}</span>
+        @if (isPlayerWhite()) {
+            @for (pawn of [].constructor(blackPawns() | currentScore); track $index) {
+                <span class="material-icons black scale-down">circle</span>
+            }
+        } @else {
+            @for (pawn of [].constructor(whitePawns() | currentScore); track $index) {
+                <span class="material-icons white scale-down">circle</span>
+            }
+        }
+    </div>
+</div>

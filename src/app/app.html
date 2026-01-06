@@ -1,0 +1,47 @@
+<main class="main">
+  <div>
+    <div class="two-column-flex-container">
+      <div>
+        <a href="https://royalur.net/senet#how-to-play" target="_blank" rel="noopener noreferrer" alt="rules link">
+          How to play 
+          <span class="material-icons">open_in_new</span>
+        </a>
+      </div>
+      @if (gameStarted && !gameOver) {
+        <div class="quit-game-button">
+          <button matButton tonal (click)="quitGame()">Quit Game</button>
+        </div>
+      }
+    </div>
+    <h2 class="intro">Ancient Rematch presents:</h2>
+    <h1>Senet</h1>
+    @if (waitingForMatch) {
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <h2>Waiting to be matched...</h2>
+      </div>
+    }
+    @if (gameOver) {
+      <h2>Game over!</h2>
+      <h1>{{ winner() == userid() ?  'You win' : 'You lose...' }}</h1>
+    }
+    @if (!waitingForMatch && (!gameStarted || gameOver)) {
+      <div class="join-game-button">
+        <button matButton tonal (click)="requestJoinMultiplayerGame()">Join Game</button>
+      </div>
+    }
+    <h2>Wins: {{ numberOfWins }} Losses: {{ numberOfLosses }}</h2>
+    @if (userid().length > 0 && !gameOver) {
+      <app-game-info-block [username]="username()" [opponentUsername]="opponentUsername()" [isPlayerWhite]="isPlayerWhite()" [whitePawns]="whitePawns()" [blackPawns]="blackPawns()" />
+    }
+    @if (gameStarted && !gameOver) {
+      <app-board [userid]="userid()" [isPlayerTurn]="isPlayerWhite() == isWhiteTurn()" [sticksValue]="sticksValue()" [whitePawns]="whitePawns()" [blackPawns]="blackPawns()" [movablePawns]="movablePawns()" [isMultiplayer]="isMultiplayer()" />
+      @if (isPlayerWhite() == isWhiteTurn() && movablePawns().length == 0) {
+        <button (click)="skipTurn()">Skip turn</button>
+      }
+      <div [class.player-turn-reminder]="isPlayerWhite() == isWhiteTurn()">{{isPlayerWhite() == isWhiteTurn() ? 'You can' : 'Your opponent can' }} move <strong>{{ sticksValue() }}</strong> squares</div>
+    }
+  </div>
+</main>
+
+<router-outlet />

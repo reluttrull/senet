@@ -1,0 +1,50 @@
+<div id="game-board">
+    <div id="row-1" class="game-row">
+        @for (square of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; track square)
+        {
+            <div class="square" (click)="movePawn(square)" 
+                    [class.movable]="isPlayerTurn() && movablePawns().includes(square)">
+                @if (whitePawns().concat(blackPawns()).includes(square))
+                {
+                    <span class="material-icons piece" 
+                        [class.white]="whitePawns().includes(square)"
+                        [class.black]="blackPawns().includes(square)">circle</span>
+                }
+            </div>
+        }
+    </div>
+    <div id="row-2" class="game-row">
+        @for (square of [19, 18, 17, 16, 15, 14, 13, 12, 11, 10]; track square)
+        {
+            <div class="square" (click)="movePawn(square)" [class.ankh-house]="square == 14"
+                    [class.movable]="isPlayerTurn() && movablePawns().includes(square)">
+                @if (whitePawns().concat(blackPawns()).includes(square))
+                {
+                    <span class="material-icons piece" 
+                        [class.white]="whitePawns().includes(square)"
+                        [class.black]="blackPawns().includes(square)">circle</span>
+                }
+            </div>
+        }
+    </div>
+    <div id="row-3" class="game-row">
+        @for (square of [20, 21, 22, 23, 24, 25, 26, 27, 28, 29]; track square)
+        {
+            <div class="square" (click)="movePawn(square)"
+                [class.beauty-house]="square == 25"
+                [class.waters-house]="square == 26"
+                [class.three-truths-house]="square == 27"
+                [class.re-atum-house]="square == 28"
+                [class.horus-house]="square == 29"
+                [class.movable]="isPlayerTurn() && movablePawns().includes(square)"
+            >
+                @if (whitePawns().concat(blackPawns()).includes(square))
+                {
+                    <span class="material-icons piece" 
+                        [class.white]="whitePawns().includes(square)"
+                        [class.black]="blackPawns().includes(square)">circle</span>
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,75 @@
+#game-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+}
+
+.game-row {
+    display: flex;
+    justify-content: center;
+    width: 80vw;
+    max-width: 700px;
+    border: 3px solid rgb(88, 60, 28);
+  background-color: rgb(181, 137, 87);
+}
+
+.square {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ankh-house {
+  background-image: url('/senet-client/images/ankh.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.beauty-house {
+  background-image: url('/senet-client/images/lute.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.waters-house {
+  background-image: url('/senet-client/images/waves.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.three-truths-house {
+  background-image: url('/senet-client/images/romanIII.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.re-atum-house {
+  background-image: url('/senet-client/images/romanII.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.horus-house {
+  background-image: url('/senet-client/images/romanI.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.piece {
+  font-size: clamp(0.8rem, 6vw, 3rem);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+}
+
+.movable {
+  background: radial-gradient(circle at center, rgba(255, 251, 0, 1) 0%, transparent 70%);
+}
